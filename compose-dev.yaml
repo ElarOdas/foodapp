@@ -1,0 +1,59 @@
+services:
+    client:
+        build:
+            context: ./images/client
+            dockerfile: Dockerfile.dev
+        volumes:
+            - /app/node_modules
+            - ./images/client:/app
+        
+        environment:
+        # Enable Dev Server Websocket
+            - WDS_SOCKET_PORT=0
+
+    db:
+        image: postgres
+        environment:
+            POSTGRES_PASSWORD_FILE: /run/secrets/db-pswd
+            POSTGRES_USER_FILE: /run/secrets/db-user
+        volumes:
+            - ./devdatadir:/var/lib/postgresql/data
+            # Scripts run on initial start
+            - ./configs/Postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+        secrets:
+            - db-user
+            - db-pswd
+            - db-script-env
+            - db-script-api
+            - db-script-worker
+
+    gateway:
+        restart: on-failure
+        build:
+            context: ./images/nginx
+            dockerfile: Dockerfile.dev
+        ports:
+            - 3050:80
+
+    api:
+        build: 
+            context: ./images/api/
+            dockerfile: Dockerfile.dev
+        depends_on: db
+        env_file: ./configs/api/api-specs.env 
+        secrets: 
+            - db-script-api
+
+    
+secrets:
+    db-user:
+        file: ./secrets/postgres/POSTGRES_USER_FILE
+    db-pswd:
+        file: ./secrets/postgres/POSTGRES_PASSWORD_FILE
+    db-script-env: 
+        file: ./secrets/postgres/script_env.sh
+    db-script-api:
+        file: ./secrets/postgres/user-api
+    db-script-worker:
+        file: ./secrets/postgres/user-worker
+# configs:
