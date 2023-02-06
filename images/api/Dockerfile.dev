@@ -1,0 +1,21 @@
+# Build the Image
+FROM golang:1.19-alpine
+
+WORKDIR /app
+
+COPY ./go.mod ./
+COPY ./go.sum ./
+
+
+COPY *.go ./
+
+COPY /handlers ./handlers
+COPY /db ./db
+
+
+RUN go mod tidy
+
+# TODO: Use profile to use test mode
+# Test the Image
+# CMD [ "go","test", "./..." ]
+CMD [ "go","run","." ]
