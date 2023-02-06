@@ -1,0 +1,18 @@
+#Using https://github.com/ElarOdas/createReactStructure
+Meal:
+      - MealItem
+      - MealForm
+      - MealSummary
+      - AvailableMeals
+UI:
+      - Card
+      - Modal
+      - Input
+
+Cart:
+      - Cart
+      - CartItem
+      - CartIcon
+Header:
+      - Header
+      - HeaderCartButton
